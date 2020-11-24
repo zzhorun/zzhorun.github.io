@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>LinkedList源码解读 // My New Hugo Site</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.78.2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="John Doe" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://zzhorun.github.io/css/main.min.88e7083eff65effb7485b6e6f38d10afbec25093a6fac42d734ce9024d3defbd.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="LinkedList源码解读"/>
+<meta name="twitter:description" content="LinkedList源码解读： 特点说明：  LinkedLIst是一个实现了==List==接口和==Deque==接口的==双端链表==； LinkedList底层的链表结构使它支持==高效的插入==和==删除操作==，另外它实现了Deque接口，使得LinkedList类也具有队列的特性； LinkedList==不是线程安全==的，如果想使LinkedList变成线程安全的，可以调用静态类==Collections==类中的==sychronizedList==方法：  List list=Collections.synchronizedList(new LinkedList(...)); 关键字解读： transient：在LinkedList源码中，针对其中的一些变量使用了transient关键字进行修饰，例如LinkedList的size，List中的第一个节点first，最后一个节点last。这个关键字表示的意思是这些被该关键字修饰的变量不会被序列化。由于LinkedList实现了Serializable接口，所以这个对象就可以被序列化，但是其中的size，first，last这些LinkedList的属性不会被序列化，生命周期仅存在与调用者的内存中，不会被写进磁盘里面持久化。 modCount: 这个值会用来和exceptedModCount比较，是用来存储修改统计数，exceptedModCount是期望的改变计数，用来实现fail-fast机制。这个值是抽象类AbstractList中的成员变量。也就是LinkedList中的add，remove，clear这些方法会造成modCount的改变。迭代过程中如何调用这些方法就会造成modCount的增加，使迭代类中的exceptedModCount和modCount不相等，就可能抛出ConcurrentModificationException异常。
+函数解读：  checkPositionIndex函数：这个函数在LinkedList类中中被频繁调用，其作用是检查当前传入的参数index是不是在当前LinkedList对象的size范围内（0&lt;=index&lt;=size），如果不是的话则抛出一个下标越界异常。  private void checkPositionIndex(int index){ if(!isPositionIndex(index)) throw new IndexOutOfBoundsException(outOfBoundsMsg(index)); } 在LinkedList中的ListItr类中有一个特殊的函数checkForComodification函数，这个函数的目的是比较modCount和expectedModCount这两个值是否相等，如果不相等的话会抛出ConcurrentModificationException异常。主要目的是为了fail-fast机制服务，fail-fast是java集合的一种错误检测机制，当多个线程对集合进行结构上的改变的操作时，有可能会产生fail-fast机制。  final void checkForComodification(){ if(modCount != expectedModCount) throw new ConcurrentModificationException(); } 在LinkedList中有很多种add功能的函数，其中的调用关系如下图：  graph LR offerLast--&gt;addLast addLast--&gt;linkLast offer--&gt;add add--&gt;linkLast add--&gt;linkBefore offerFirst--&gt;addFirst push--&gt;addFirst addFirst--&gt;linkFirst addAll linkLast函数：该函数就是将作为参数的Node值添加到最末尾。
+void linkLast(E e){ final Node&lt;E&gt; l = last; final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null); last = neNode; if(l == null) first = newNode; else l."/>
+
+    <meta property="og:title" content="LinkedList源码解读" />
+<meta property="og:description" content="LinkedList源码解读： 特点说明：  LinkedLIst是一个实现了==List==接口和==Deque==接口的==双端链表==； LinkedList底层的链表结构使它支持==高效的插入==和==删除操作==，另外它实现了Deque接口，使得LinkedList类也具有队列的特性； LinkedList==不是线程安全==的，如果想使LinkedList变成线程安全的，可以调用静态类==Collections==类中的==sychronizedList==方法：  List list=Collections.synchronizedList(new LinkedList(...)); 关键字解读： transient：在LinkedList源码中，针对其中的一些变量使用了transient关键字进行修饰，例如LinkedList的size，List中的第一个节点first，最后一个节点last。这个关键字表示的意思是这些被该关键字修饰的变量不会被序列化。由于LinkedList实现了Serializable接口，所以这个对象就可以被序列化，但是其中的size，first，last这些LinkedList的属性不会被序列化，生命周期仅存在与调用者的内存中，不会被写进磁盘里面持久化。 modCount: 这个值会用来和exceptedModCount比较，是用来存储修改统计数，exceptedModCount是期望的改变计数，用来实现fail-fast机制。这个值是抽象类AbstractList中的成员变量。也就是LinkedList中的add，remove，clear这些方法会造成modCount的改变。迭代过程中如何调用这些方法就会造成modCount的增加，使迭代类中的exceptedModCount和modCount不相等，就可能抛出ConcurrentModificationException异常。
+函数解读：  checkPositionIndex函数：这个函数在LinkedList类中中被频繁调用，其作用是检查当前传入的参数index是不是在当前LinkedList对象的size范围内（0&lt;=index&lt;=size），如果不是的话则抛出一个下标越界异常。  private void checkPositionIndex(int index){ if(!isPositionIndex(index)) throw new IndexOutOfBoundsException(outOfBoundsMsg(index)); } 在LinkedList中的ListItr类中有一个特殊的函数checkForComodification函数，这个函数的目的是比较modCount和expectedModCount这两个值是否相等，如果不相等的话会抛出ConcurrentModificationException异常。主要目的是为了fail-fast机制服务，fail-fast是java集合的一种错误检测机制，当多个线程对集合进行结构上的改变的操作时，有可能会产生fail-fast机制。  final void checkForComodification(){ if(modCount != expectedModCount) throw new ConcurrentModificationException(); } 在LinkedList中有很多种add功能的函数，其中的调用关系如下图：  graph LR offerLast--&gt;addLast addLast--&gt;linkLast offer--&gt;add add--&gt;linkLast add--&gt;linkBefore offerFirst--&gt;addFirst push--&gt;addFirst addFirst--&gt;linkFirst addAll linkLast函数：该函数就是将作为参数的Node值添加到最末尾。
+void linkLast(E e){ final Node&lt;E&gt; l = last; final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null); last = neNode; if(l == null) first = newNode; else l." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zzhorun.github.io/post/linkedlist/" />
+<meta property="article:published_time" content="2020-11-24T23:19:55+08:00" />
+<meta property="article:modified_time" content="2020-11-24T23:19:55+08:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://zzhorun.github.io/"><img class="app-header-avatar" src="/avatar.jpg" alt="John Doe" /></a>
+      <h1>My New Hugo Site</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vehicula turpis sit amet elit pretium.</p>
+      <div class="app-header-social">
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">LinkedList源码解读</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Nov 24, 2020
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          3 min read
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h4 id="linkedlist源码解读">LinkedList源码解读：</h4>
+<h5 id="特点说明">特点说明：</h5>
+<ol>
+<li>LinkedLIst是一个实现了==List==接口和==Deque==接口的==双端链表==；</li>
+<li>LinkedList底层的链表结构使它支持==高效的插入==和==删除操作==，另外它实现了Deque接口，使得LinkedList类也具有队列的特性；</li>
+<li>LinkedList==不是线程安全==的，如果想使LinkedList变成线程安全的，可以调用静态类==Collections==类中的==sychronizedList==方法：</li>
+</ol>
+<pre><code>List list=Collections.synchronizedList(new LinkedList(...));
+</code></pre><h5 id="关键字解读">关键字解读：</h5>
+<p><strong>transient</strong>：在LinkedList源码中，针对其中的一些变量使用了transient关键字进行修饰，例如LinkedList的size，List中的第一个节点first，最后一个节点last。这个关键字表示的意思是这些被该关键字修饰的变量不会被序列化。由于LinkedList实现了Serializable接口，所以这个对象就可以被序列化，但是其中的size，first，last这些LinkedList的属性不会被序列化，生命周期仅存在与调用者的内存中，不会被写进磁盘里面持久化。
+<strong>modCount</strong>: 这个值会用来和exceptedModCount比较，是用来存储修改统计数，exceptedModCount是期望的改变计数，用来实现fail-fast机制。这个值是抽象类AbstractList中的成员变量。也就是LinkedList中的add，remove，clear这些方法会造成modCount的改变。迭代过程中如何调用这些方法就会造成modCount的增加，使迭代类中的exceptedModCount和modCount不相等，就可能抛出ConcurrentModificationException异常。</p>
+<h5 id="函数解读">函数解读：</h5>
+<ol>
+<li>checkPositionIndex函数：这个函数在LinkedList类中中被频繁调用，其作用是检查当前传入的参数index是不是在当前LinkedList对象的size范围内（0&lt;=index&lt;=size），如果不是的话则抛出一个下标越界异常。</li>
+</ol>
+<pre><code>private void checkPositionIndex(int index){
+    if(!isPositionIndex(index))
+        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+</code></pre><ol start="2">
+<li>在LinkedList中的ListItr类中有一个特殊的函数checkForComodification函数，这个函数的目的是比较modCount和expectedModCount这两个值是否相等，如果不相等的话会抛出ConcurrentModificationException异常。主要目的是为了fail-fast机制服务，fail-fast是java集合的一种错误检测机制，当多个线程对集合进行结构上的改变的操作时，有可能会产生fail-fast机制。</li>
+</ol>
+<pre><code>final void checkForComodification(){
+    if(modCount != expectedModCount)
+        throw new ConcurrentModificationException();
+}
+</code></pre><ol start="3">
+<li>在LinkedList中有很多种add功能的函数，其中的调用关系如下图：</li>
+</ol>
+<pre><code class="language-mermaid" data-lang="mermaid">graph LR
+offerLast--&gt;addLast
+addLast--&gt;linkLast
+offer--&gt;add
+add--&gt;linkLast
+add--&gt;linkBefore
+offerFirst--&gt;addFirst
+push--&gt;addFirst
+addFirst--&gt;linkFirst
+addAll
+</code></pre><p>linkLast函数：该函数就是将作为参数的Node值添加到最末尾。</p>
+<pre><code>void linkLast(E e){
+    final Node&lt;E&gt; l = last;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null);
+    last = neNode;
+    if(l == null)
+        first = newNode;
+    else
+        l.next = newNode;
+    size ++;
+    modCount ++;
+}
+</code></pre><p>linkBefore函数：该函数是在一个非空的Node succ前面插入一个e对象。</p>
+<pre><code>void linkBefore(E e, Node&lt;E&gt; succ){
+    //原来是 1  2  3  4  5
+    //现在是 1  2  6  3  4  5
+    //pred也就是指的是2   newNode指的是6   succ指的是3
+    final Node&lt;E&gt; pred = succ.prev; //这一步是得到succ前面的对象
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(pred, e, succ);//这一步是创建一个Node对象，这个对象的prev是指向pred，next是指向succ，它的值是e
+    succ.prev = newNode;
+    if(pred == null)
+        first = newNode;//当pred为空的时候，也就是这个插入操作是向当前LinkedList的first前插入
+    else
+        pred.next = newNode;
+    size ++;
+    modCount ++;
+}
+</code></pre><p>linkFirst函数：这个函数的目的是将e元素放到最前面。</p>
+<pre><code>private void linkFirst(E e){
+    final Node&lt;E&gt; f = first;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(null, e, f);
+    first = newNode;
+    if(f == null)
+        last = newNode;
+    else
+        f.prev = newNode;
+    size ++;
+    modCount ++;
+}
+</code></pre><p>addAll函数： 将已有的集合放在链表位置为index的上面</p>
+<pre><code>public boolean addAll(int index, Collection&lt;? extends E&gt; c){
+    checkPositionIndex(index);
+
+    Object[] a = c.toArray();
+    int numNew = a.length;
+    if(numNew == 0)
+        return false;
+
+    Node&lt;E&gt; pred, succ;
+    if(index == size){
+        succ = null;
+        pred = last;
+    } else {
+        succ = node(index);
+        pred = succ.prev;
+    }
+
+    for(Object o : a) {
+        @SuppressWarnings(&quot;unchecked&quot;) E e = (E) o;
+        Node&lt;E&gt; newNode = new Node&lt;&gt;(pred, o, null);
+        if(pred == null)
+            first = newNode;
+        else
+            pred.next = newNode;
+        pred = newNode;
+    }
+    if(succ == null){
+        last = pred;
+    } else {
+        pred.next = succ;
+        succ.prev = pred;
+    }
+    size += numNew;
+    modCount ++;
+    return true;
+}
+</code></pre><ol start="4">
+<li>LinkedList中有一些函数带有remove或者是pop、poll性质的函数，这些函数之间的调用关系大概是：</li>
+</ol>
+<pre><code class="language-mermaid" data-lang="mermaid">graph LR
+remove--&gt;unlink
+remove--&gt;removeFirst
+pop--&gt;removeFirst
+removeFirst--&gt;unlinkFirst
+poll--&gt;unlinkFirst
+pollFirst--&gt;unlinkFirst
+removeLast--&gt;unlinkLast
+pollLast--&gt;unlinkLast
+</code></pre><p>unlink函数：这个函数是将特定的node对象从LinkedList中remove，并且返回这个node对象的值。</p>
+<pre><code>E unlink(Node&lt;E&gt; x){
+    //原来是： 1  2  3  4  5  6
+    //现在是： 1  2  4  5  6
+    //Node x是3   prev是2   next是4
+    final E element = x.item;
+    final Node&lt;E&gt; next = x.next;
+    final Node&lt;E&gt; prev = x.prev;
+    if(prev == null)//这里判断需要unlink的node对象是不是LinkedList的第一个
+        first = next;
+    else
+    {
+        prev.next = next;
+        x.prev = null;
+    }
+    
+    if(next == null)//这里判断需要unlink的node对象是不是LinkedList的最后一个
+        last = prev;
+    else
+    {
+        next.prev = prev;
+        x.next = null;
+    }
+    
+    x.item = null;
+    size --;
+    modCount ++;
+    return element;
+}
+</code></pre><p>unlinkFirst: 这个函数的目的是unlink非空的first对象。</p>
+<pre><code>private E unlinkFirst(Node&lt;E&gt; f){
+    final E element = f.item;
+    final Node&lt;E&gt; next = f.next;
+    f.item = null;
+    f.next = null;//help GC
+    first = next;
+    if(next == null)//判断移除对象的next是不是空，如果是空的就说明该LinkedList现在为空了
+        last = null;
+    else
+        next.prev = null;
+    size --;
+    modCount ++;
+    return element;
+}
+</code></pre><p>unlinkLast函数： 这个函数目的是unlink非空的last对象。</p>
+<pre><code>private E unlinkLast(Node&lt;E&gt; l){
+    final E element = l.item;
+    final Node&lt;E&gt; prev = l.prev;
+    l.item = null;
+    l.prev = null;//help GC
+    last = prev;
+    if(prev == null)//判断移除对象的prev是不是空，如果是空就说明该LinkedList现在为空了
+        first = null;
+    else
+        prev.next = null;
+    size --;
+    modCount ++;
+    return element;
+}
+</code></pre>
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

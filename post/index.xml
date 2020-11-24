@@ -6,7 +6,18 @@
     <description>Recent content in Posts on My New Hugo Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 24 Nov 2020 22:56:46 +0800</lastBuildDate><atom:link href="https://zzhorun.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 24 Nov 2020 23:19:55 +0800</lastBuildDate><atom:link href="https://zzhorun.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LinkedList源码解读</title>
+      <link>https://zzhorun.github.io/post/linkedlist/</link>
+      <pubDate>Tue, 24 Nov 2020 23:19:55 +0800</pubDate>
+      
+      <guid>https://zzhorun.github.io/post/linkedlist/</guid>
+      <description>LinkedList源码解读： 特点说明：  LinkedLIst是一个实现了==List==接口和==Deque==接口的==双端链表==； LinkedList底层的链表结构使它支持==高效的插入==和==删除操作==，另外它实现了Deque接口，使得LinkedList类也具有队列的特性； LinkedList==不是线程安全==的，如果想使LinkedList变成线程安全的，可以调用静态类==Collections==类中的==sychronizedList==方法：  List list=Collections.synchronizedList(new LinkedList(...)); 关键字解读： transient：在LinkedList源码中，针对其中的一些变量使用了transient关键字进行修饰，例如LinkedList的size，List中的第一个节点first，最后一个节点last。这个关键字表示的意思是这些被该关键字修饰的变量不会被序列化。由于LinkedList实现了Serializable接口，所以这个对象就可以被序列化，但是其中的size，first，last这些LinkedList的属性不会被序列化，生命周期仅存在与调用者的内存中，不会被写进磁盘里面持久化。 modCount: 这个值会用来和exceptedModCount比较，是用来存储修改统计数，exceptedModCount是期望的改变计数，用来实现fail-fast机制。这个值是抽象类AbstractList中的成员变量。也就是LinkedList中的add，remove，clear这些方法会造成modCount的改变。迭代过程中如何调用这些方法就会造成modCount的增加，使迭代类中的exceptedModCount和modCount不相等，就可能抛出ConcurrentModificationException异常。
+函数解读：  checkPositionIndex函数：这个函数在LinkedList类中中被频繁调用，其作用是检查当前传入的参数index是不是在当前LinkedList对象的size范围内（0&amp;lt;=index&amp;lt;=size），如果不是的话则抛出一个下标越界异常。  private void checkPositionIndex(int index){ if(!isPositionIndex(index)) throw new IndexOutOfBoundsException(outOfBoundsMsg(index)); } 在LinkedList中的ListItr类中有一个特殊的函数checkForComodification函数，这个函数的目的是比较modCount和expectedModCount这两个值是否相等，如果不相等的话会抛出ConcurrentModificationException异常。主要目的是为了fail-fast机制服务，fail-fast是java集合的一种错误检测机制，当多个线程对集合进行结构上的改变的操作时，有可能会产生fail-fast机制。  final void checkForComodification(){ if(modCount != expectedModCount) throw new ConcurrentModificationException(); } 在LinkedList中有很多种add功能的函数，其中的调用关系如下图：  graph LR offerLast--&amp;gt;addLast addLast--&amp;gt;linkLast offer--&amp;gt;add add--&amp;gt;linkLast add--&amp;gt;linkBefore offerFirst--&amp;gt;addFirst push--&amp;gt;addFirst addFirst--&amp;gt;linkFirst addAll linkLast函数：该函数就是将作为参数的Node值添加到最末尾。
+void linkLast(E e){ final Node&amp;lt;E&amp;gt; l = last; final Node&amp;lt;E&amp;gt; newNode = new Node&amp;lt;&amp;gt;(l, e, null); last = neNode; if(l == null) first = newNode; else l.</description>
+    </item>
+    
     <item>
       <title>ArrayList源码解读</title>
       <link>https://zzhorun.github.io/post/blog/</link>
