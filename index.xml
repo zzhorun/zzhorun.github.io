@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>My New Hugo Site</title>
+    <link>https://zzhorun.github.io/</link>
+    <description>Recent content on My New Hugo Site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 24 Nov 2020 22:56:46 +0800</lastBuildDate><atom:link href="https://zzhorun.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ArrayList源码解读</title>
+      <link>https://zzhorun.github.io/post/blog/</link>
+      <pubDate>Tue, 24 Nov 2020 22:56:46 +0800</pubDate>
+      
+      <guid>https://zzhorun.github.io/post/blog/</guid>
+      <description>ArrayList源码解读： 特点说明：  ArrayList底层是数组队列，相当于动态数组。和java的数组相比，它的容量能动态增长。当添加大量的元素时，应用程序可以通过扩容机制来增加ArrayList实例的容量。这可以减少递增式再分配的数量。 同样的由于ArrayList和LinkedList二者的结构不同，在增删查改方面的速度也是大不一样的。对于ArrayList来说，线性表的顺序存储，插入、删除元素的时间复杂度为O(n)，求表长以及增加元素，取第i元素的时间复杂度为O(1) LinkedList不支持高效的随机元素访问，而ArrayList支持。 ArrayList的空间浪费主要体现在list列表的结尾会预留一定的容量空间，而LinkedList的空间花费则体现在它的每一个元素都需要消耗比ArrayList更多的空间(因为要存放直接后继和直接前驱以及数据)。  关键字解读： RandomAccess：RandomAccess这个是ArrayList所实现的随机接入接口。从源码中看这个接口中并没有任何的内容。只是作为一个标示，标记当前的接口具有随机访问功能，所以并不是说ArrayList实现了RandomAccess接口才具有快速随机访问功能的。
+函数解读：(针对ArrayList扩容的源代码放在最后) 1. trimToSize函数：简单来说就是对当前的ArrayList进行瘦身。 private static final Object[] EMPTY_ELEMENTDATA = {}; ....... public void trimToSize(){ modCount ++; if(size &amp;lt; elementData.length) { elementData = (size == 0) ? EMPTY_ELEMENTDATA : Arrays.copyOf(elementData, size); } } 2. ArrayList带集合参数的构造函数： 构造一个包含指定集合的元素的列表。 public ArrayList(Collection&amp;lt;? extends E&amp;gt; c) { elementData = c.toArray(); //如果指定集合元素个数不为0  if ((size = elementData.length) != 0) { // c.toArray 可能返回的不是Object类型的数组，所以加上下面的语句用于判断，  //这里用到了反射里面的getClass()方法  if (elementData.</description>
+    </item>
+    
+  </channel>
+</rss>
